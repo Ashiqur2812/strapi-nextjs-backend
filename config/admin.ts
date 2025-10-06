@@ -1,4 +1,4 @@
-export default ({ env }) => ({
+export default ({ env }: { env: (key: string, defaultValue?: any) => any }) => ({
   auth: {
     secret: env('ADMIN_JWT_SECRET'),
   },
@@ -14,7 +14,7 @@ export default ({ env }) => ({
     encryptionKey: env('ENCRYPTION_KEY'),
   },
   flags: {
-    nps: env.bool('FLAG_NPS', true),
-    promoteEE: env.bool('FLAG_PROMOTE_EE', true),
+    nps: Boolean(env('FLAG_NPS', true)),
+    promoteEE: Boolean(env('FLAG_PROMOTE_EE', true)),
   },
 });
