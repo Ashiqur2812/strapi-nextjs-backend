@@ -1,74 +1,67 @@
-import { factories } from "@strapi/strapi";
-import type { Context } from "koa";
+export default {
+    /**
+     * 🟢 Get all courses (role-based filtering)
+     */
+    async find(ctx: any) {
+        try {
+            const user = ctx.state?.user;
+            const userRole = user?.role?.type || "public";
 
-export default factories.createCoreController("api::course.course", ({ strapi }) => ({
-    // ======================
-    // Custom find() Method
-    // ======================
-    async find(ctx: Context) {
-        const user = ctx.state?.user;
-        const userRole = user?.role?.type || "public";
-
-        // Sanitize query
-        const sanitizedQueryParams = await (this as any).sanitizeQuery(ctx);
-
-        // Fetch all courses with populated relations
-        const entities = await strapi.entityService.findMany("api::course.course", {
-            ...sanitizedQueryParams,
-            populate: {
-                modules: {
-                    populate: {
-                        classes: true,
+            // Fetch courses with modules and classes populated
+            const courses = await strapi.entityService.findMany("api::course.course", {
+                populate: {
+                    modules: {
+                        populate: {
+                            classes: true,
+                        },
                     },
                 },
-            },
-        });
+            });
 
-        // Filter courses based on allowedRoles
-        const filteredEntities = entities.filter((course: any) => {
+            // Filter based on allowedRoles
+            const filteredCourses = courses.filter((course: any) => {
+                const allowedRoles: string[] = course.allowedRoles || [];
+                return allowedRoles.includes(userRole) || allowedRoles.includes("all");
+            });
+
+            // Send response
+            ctx.body = filteredCourses;
+        } catch (error: any) {
+            ctx.throw(500, `Error fetching courses: ${error.message}`);
+        }
+    },
+
+    /**
+     * 🟢 Get single course (role-based access)
+     */
+    async findOne(ctx: any) {
+        try {
+            const { id } = ctx.params;
+            const user = ctx.state?.user;
+            const userRole = user?.role?.type || "public";
+
+            const course = await strapi.entityService.findOne("api::course.course", id, {
+                populate: {
+                    modules: {
+                        populate: {
+                            classes: true,
+                        },
+                    },
+                },
+            });
+
+            if (!course) {
+                return ctx.notFound("Course not found");
+            }
+
             const allowedRoles: string[] = course.allowedRoles || [];
-            return allowedRoles.includes(userRole) || allowedRoles.includes("all");
-        });
+            if (!allowedRoles.includes(userRole) && !allowedRoles.includes("all")) {
+                return ctx.forbidden("You do not have access to this course");
+            }
 
-        // Sanitize and return response
-        const sanitizedResults = await (this as any).sanitizeOutput(filteredEntities, ctx);
-        return (this as any).transformResponse(sanitizedResults);
-    },
-
-    // ======================
-    // Custom findOne() Method
-    // ======================
-    async findOne(ctx: Context) {
-        const { id } = ctx.params;
-        const user = ctx.state?.user;
-        const userRole = user?.role?.type || "public";
-
-        // Sanitize query
-        const sanitizedQueryParams = await (this as any).sanitizeQuery(ctx);
-
-        // Fetch single course with populated relations
-        const entity = await strapi.entityService.findOne("api::course.course", id, {
-            ...sanitizedQueryParams,
-            populate: {
-                modules: {
-                    populate: {
-                        classes: true,
-                    },
-                },
-            },
-        });
-
-        if (!entity) {
-            return ctx.notFound("Course not found");
+            ctx.body = course;
+        } catch (error: any) {
+            ctx.throw(500, `Error fetching course: ${error.message}`);
         }
-
-        // Check access permission
-        const allowedRoles: string[] = entity.allowedRoles || [];
-        if (!allowedRoles.includes(userRole) && !allowedRoles.includes("all")) {
-            return ctx.forbidden("You do not have access to this course");
-        }
-
-        const sanitizedEntity = await (this as any).sanitizeOutput(entity, ctx);
-        return (this as any).transformResponse(sanitizedEntity);
     },
-}));
+};

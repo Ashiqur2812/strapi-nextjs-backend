@@ -467,121 +467,6 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
   };
 }
 
-export interface ApiClassClass extends Struct.CollectionTypeSchema {
-  collectionName: 'classes';
-  info: {
-    description: 'Individual class/lesson content type';
-    displayName: 'Class';
-    pluralName: 'classes';
-    singularName: 'class';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    description: Schema.Attribute.Text;
-    duration: Schema.Attribute.String;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<'oneToMany', 'api::class.class'> &
-      Schema.Attribute.Private;
-    module: Schema.Attribute.Relation<'manyToOne', 'api::module.module'>;
-    order: Schema.Attribute.Integer &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<0>;
-    publishedAt: Schema.Attribute.DateTime;
-    resources: Schema.Attribute.JSON & Schema.Attribute.DefaultTo<[]>;
-    title: Schema.Attribute.String & Schema.Attribute.Required;
-    topics: Schema.Attribute.JSON & Schema.Attribute.DefaultTo<[]>;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    videoUrl: Schema.Attribute.String;
-  };
-}
-
-export interface ApiCourseCourse extends Struct.CollectionTypeSchema {
-  collectionName: 'courses';
-  info: {
-    description: 'Course content type';
-    displayName: 'Course';
-    pluralName: 'courses';
-    singularName: 'course';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    allowedRoles: Schema.Attribute.JSON &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<['student']>;
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    description: Schema.Attribute.Text & Schema.Attribute.Required;
-    duration: Schema.Attribute.String;
-    instructor: Schema.Attribute.String;
-    isPublished: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
-    level: Schema.Attribute.Enumeration<
-      ['beginner', 'intermediate', 'advanced']
-    > &
-      Schema.Attribute.DefaultTo<'beginner'>;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::course.course'
-    > &
-      Schema.Attribute.Private;
-    modules: Schema.Attribute.Relation<'oneToMany', 'api::module.module'>;
-    price: Schema.Attribute.Decimal & Schema.Attribute.DefaultTo<0>;
-    publishedAt: Schema.Attribute.DateTime;
-    thumbnail: Schema.Attribute.String;
-    title: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.Unique;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-  };
-}
-
-export interface ApiModuleModule extends Struct.CollectionTypeSchema {
-  collectionName: 'modules';
-  info: {
-    description: 'Course module content type';
-    displayName: 'Module';
-    pluralName: 'modules';
-    singularName: 'module';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    classes: Schema.Attribute.Relation<'oneToMany', 'api::class.class'>;
-    course: Schema.Attribute.Relation<'manyToOne', 'api::course.course'>;
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    description: Schema.Attribute.Text;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::module.module'
-    > &
-      Schema.Attribute.Private;
-    order: Schema.Attribute.Integer &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<0>;
-    publishedAt: Schema.Attribute.DateTime;
-    title: Schema.Attribute.String & Schema.Attribute.Required;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-  };
-}
-
 export interface PluginContentReleasesRelease
   extends Struct.CollectionTypeSchema {
   collectionName: 'strapi_releases';
@@ -1093,9 +978,6 @@ declare module '@strapi/strapi' {
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
-      'api::class.class': ApiClassClass;
-      'api::course.course': ApiCourseCourse;
-      'api::module.module': ApiModuleModule;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;
