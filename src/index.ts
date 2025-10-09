@@ -1,28 +1,43 @@
-// export default {
-//   /**
-//    * Runs before your application is initialized.
-//    */
-//   register() { },
-
-//   /**
-//    * Runs before your application starts.
-//    */
-//   bootstrap() { },
-// };
+/**
+ * Application entry point
+ */
 
 export default {
   /**
-   * Register function runs before your application is initialized.
+   * An asynchronous register function that runs before
+   * your application is initialized.
    */
-  register({ strapi }: { strapi: any; }) {
-    // Initialization logic here (optional)
+  register({ strapi }) {
+    // Register custom functionality here
   },
 
   /**
-   * Bootstrap function runs before the app starts.
+   * An asynchronous bootstrap function that runs before
+   * your application gets started.
    */
-  bootstrap({ strapi }: { strapi: any; }) {
-    // Logic before app starts
+  async bootstrap({ strapi }) {
+    // Bootstrap your application here
+    console.log('CPS Academy Backend is starting...');
+
+    // Create default roles if they don't exist
+    const roles = ['student', 'developer', 'social_media_manager'];
+
+    for (const roleType of roles) {
+      const existingRole = await strapi
+        .query('plugin::users-permissions.role')
+        .findOne({ where: { type: roleType } });
+
+      if (!existingRole) {
+        await strapi.query('plugin::users-permissions.role').create({
+          data: {
+            name: roleType.charAt(0).toUpperCase() + roleType.slice(1).replace('_', ' '),
+            description: `${roleType} role`,
+            type: roleType,
+          },
+        });
+        console.log(`Created role: ${roleType}`);
+      }
+    }
+    console.log('CPS Academy Backend started successfully!');
   },
 };
-
