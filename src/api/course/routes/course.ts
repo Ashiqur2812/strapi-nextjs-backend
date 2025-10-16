@@ -15,7 +15,7 @@ export default {
     },
     {
       method: 'GET',
-      path: '/courses/:id',
+      path: '/:id',
       handler: 'course.findOne',
       config: {
         policies: [],
